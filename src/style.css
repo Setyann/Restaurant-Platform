@@ -179,3 +179,27 @@ button {
 .menu-subcategory .menu-items {
   gap: 12px;
 }
+
+.menu-item-variants {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-item-variant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.menu-item-variant-name {
+  color: var(--color-muted);
+  font-size: 0.92rem;
+}
+
+.menu-item-variant .menu-item-price {
+  flex-shrink: 0;
+}

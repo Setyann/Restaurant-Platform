@@ -112,8 +112,38 @@
                     "ru": "Кофе с молоком",
                     "en": "Coffee with milk"
                 },
-                "price": 1200,
-                "currency": "AMD",
+                "variants": [
+                    {
+                        "id": "small",
+                        "name": {
+                            "hy": "Փոքր",
+                            "ru": "Маленький",
+                            "en": "Small"
+                        },
+                        "price": 1000,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "medium",
+                        "name": {
+                            "hy": "Միջին",
+                            "ru": "Средний",
+                            "en": "Medium"
+                        },
+                        "price": 1200,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "large",
+                        "name": {
+                            "hy": "Մեծ",
+                            "ru": "Большой",
+                            "en": "Large"
+                        },
+                        "price": 1500,
+                        "currency": "AMD"
+                    }
+                ],
                 "image": null,
                 "isAvailable": true,
                 "sortOrder": 2

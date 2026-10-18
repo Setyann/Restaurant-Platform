@@ -161,18 +161,82 @@ export function validateMenu(data) {
     }
 
     if (
-      typeof item.price !== 'number' ||
-      !Number.isFinite(item.price) ||
-      item.price < 0
+      item.variants !== undefined &&
+      !Array.isArray(item.variants)
     ) {
-      errors.push(`Item "${item.id}" has an invalid price.`)
+      errors.push(
+        `Item "${item.id}" variants must be an array.`
+      )
     }
 
-    if (
-      typeof item.currency !== 'string' ||
-      !/^[A-Z]{3}$/.test(item.currency)
-    ) {
-      errors.push(`Item "${item.id}" has an invalid currency code.`)
+    const hasVariants =
+      Array.isArray(item.variants) && item.variants.length > 0
+
+    if (hasVariants) {
+      const variantIds = new Set()
+
+      for (const variant of item.variants) {
+        if (
+          !variant ||
+          typeof variant.id !== 'string' ||
+          !variant.id
+        ) {
+          errors.push(
+            `Item "${item.id}" has a variant without a valid ID.`
+          )
+          continue
+        }
+
+        if (variantIds.has(variant.id)) {
+          errors.push(
+            `Item "${item.id}" has a duplicate variant ID: ${variant.id}`
+          )
+        }
+
+        variantIds.add(variant.id)
+
+        if (!variant.name || typeof variant.name !== 'object') {
+          errors.push(
+            `Variant "${variant.id}" of item "${item.id}" has no valid name.`
+          )
+        }
+
+        if (
+          typeof variant.price !== 'number' ||
+          !Number.isFinite(variant.price) ||
+          variant.price < 0
+        ) {
+          errors.push(
+            `Variant "${variant.id}" of item "${item.id}" has an invalid price.`
+          )
+        }
+
+        if (
+          typeof variant.currency !== 'string' ||
+          !/^[A-Z]{3}$/.test(variant.currency)
+        ) {
+          errors.push(
+            `Variant "${variant.id}" of item "${item.id}" has an invalid currency code.`
+          )
+        }
+      }
+    } else {
+      if (
+        typeof item.price !== 'number' ||
+        !Number.isFinite(item.price) ||
+        item.price < 0
+      ) {
+        errors.push(`Item "${item.id}" has an invalid price.`)
+      }
+
+      if (
+        typeof item.currency !== 'string' ||
+        !/^[A-Z]{3}$/.test(item.currency)
+      ) {
+        errors.push(
+          `Item "${item.id}" has an invalid currency code.`
+        )
+      }
     }
 
     if (typeof item.isAvailable !== 'boolean') {

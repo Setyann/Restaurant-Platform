@@ -173,3 +173,123 @@ test('legacy menus without subcategories remain valid', async () => {
 
   assert.deepEqual(validateMenu(data), [])
 })
+
+test('items with variants do not require a base price', async () => {
+  const data = await getMenu()
+  const item = data.menu.items[0]
+
+  delete item.price
+  delete item.currency
+
+  item.variants = [
+    {
+      id: 'small',
+      name: { hy: 'Փոքր', ru: 'Маленький', en: 'Small' },
+      price: 1000,
+      currency: 'AMD'
+    },
+    {
+      id: 'large',
+      name: { hy: 'Մեծ', ru: 'Большой', en: 'Large' },
+      price: 1500,
+      currency: 'AMD'
+    }
+  ]
+
+  assert.deepEqual(validateMenu(data), [])
+})
+
+test('negative variant prices are rejected', async () => {
+  const data = await getMenu()
+  const item = data.menu.items[0]
+
+  delete item.price
+  delete item.currency
+
+  item.variants = [
+    {
+      id: 'small',
+      name: { hy: 'Փոքր', ru: 'Маленький', en: 'Small' },
+      price: -100,
+      currency: 'AMD'
+    }
+  ]
+
+  const errors = validateMenu(data)
+
+  assert.ok(errors.some((error) => error.includes('invalid price')))
+})
+
+test('duplicate variant IDs are rejected within an item', async () => {
+  const data = await getMenu()
+  const item = data.menu.items[0]
+
+  item.variants = [
+    {
+      id: 'small',
+      name: { hy: 'Փոքր', ru: 'Маленький', en: 'Small' },
+      price: 1000,
+      currency: 'AMD'
+    },
+    {
+      id: 'small',
+      name: { hy: 'Մեծ', ru: 'Большой', en: 'Large' },
+      price: 1500,
+      currency: 'AMD'
+    }
+  ]
+
+  const errors = validateMenu(data)
+
+  assert.ok(errors.some((error) => error.includes('duplicate variant ID')))
+})
+
+test('invalid variant currency codes are rejected', async () => {
+  const data = await getMenu()
+  const item = data.menu.items[0]
+
+  item.variants = [
+    {
+      id: 'small',
+      name: { hy: 'Փոքր', ru: 'Маленький', en: 'Small' },
+      price: 1000,
+      currency: 'invalid'
+    }
+  ]
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) => error.includes('invalid currency code'))
+  )
+})
+
+test('non-array variants are rejected', async () => {
+  const data = await getMenu()
+  data.menu.items[0].variants = {}
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) => error.includes('variants must be an array'))
+  )
+})
+
+test('variants without valid names are rejected', async () => {
+  const data = await getMenu()
+  const item = data.menu.items[0]
+
+  item.variants = [
+    {
+      id: 'small',
+      price: 1000,
+      currency: 'AMD'
+    }
+  ]
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) => error.includes('has no valid name'))
+  )
+})

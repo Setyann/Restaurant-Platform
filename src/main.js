@@ -60,14 +60,37 @@ function formatPrice(price, currency) {
 function renderItem(item) {
   if (!item.isAvailable) return ''
 
+  const variants = Array.isArray(item.variants)
+    ? item.variants
+    : []
+
+  const priceContent = variants.length > 0
+    ? `
+      <ul class="menu-item-variants">
+        ${variants.map((variant) => `
+          <li class="menu-item-variant">
+            <span class="menu-item-variant-name">
+              ${getLocalizedText(variant.name)}
+            </span>
+            <span class="menu-item-price">
+              ${escapeHtml(formatPrice(variant.price, variant.currency))}
+            </span>
+          </li>
+        `).join('')}
+      </ul>
+    `
+    : `
+      <span class="menu-item-price">
+        ${escapeHtml(formatPrice(item.price, item.currency))}
+      </span>
+    `
+
   return `
     <article class="menu-item">
       <div class="menu-item-content">
         <h3>${getLocalizedText(item.name)}</h3>
         <p>${getLocalizedText(item.description)}</p>
-        <span class="menu-item-price">
-          ${escapeHtml(formatPrice(item.price, item.currency))}
-        </span>
+        ${priceContent}
       </div>
     </article>
   `
