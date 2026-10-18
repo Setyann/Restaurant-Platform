@@ -1,0 +1,108 @@
+{
+    "restaurant": {
+        "id": "demo",
+        "slug": "demo",
+        "name": {
+            "hy": "Փորձնական սրճարան",
+            "ru": "Тестовая кофейня",
+            "en": "Demo Cafe"
+        },
+        "description": {
+            "hy": "",
+            "ru": "",
+            "en": ""
+        },
+        "primaryLanguage": "hy",
+        "supportedLanguages": [
+            "hy",
+            "ru",
+            "en"
+        ],
+        "branding": {
+            "logo": null,
+            "accentColor": "#386641"
+        }
+    },
+    "menu": {
+        "version": 1,
+        "categories": [
+            {
+                "id": "coffee",
+                "name": {
+                    "hy": "Սուրճ",
+                    "ru": "Кофе",
+                    "en": "Coffee"
+                },
+                "sortOrder": 1
+            },
+            {
+                "id": "desserts",
+                "name": {
+                    "hy": "Աղանդեր",
+                    "ru": "Десерты",
+                    "en": "Desserts"
+                },
+                "sortOrder": 2
+            }
+        ],
+        "items": [
+            {
+                "id": "espresso",
+                "categoryId": "coffee",
+                "name": {
+                    "hy": "Էսպրեսսո",
+                    "ru": "Эспрессо",
+                    "en": "Espresso"
+                },
+                "description": {
+                    "hy": "Դասական սուրճ",
+                    "ru": "Классический кофе",
+                    "en": "Classic coffee"
+                },
+                "price": 800,
+                "currency": "AMD",
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 1
+            },
+            {
+                "id": "cappuccino",
+                "categoryId": "coffee",
+                "name": {
+                    "hy": "Կապուչինո",
+                    "ru": "Капучино",
+                    "en": "Cappuccino"
+                },
+                "description": {
+                    "hy": "Սուրճ կաթով",
+                    "ru": "Кофе с молоком",
+                    "en": "Coffee with milk"
+                },
+                "price": 1200,
+                "currency": "AMD",
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 2
+            },
+            {
+                "id": "cheesecake",
+                "categoryId": "desserts",
+                "name": {
+                    "hy": "Չիզքեյք",
+                    "ru": "Чизкейк",
+                    "en": "Cheesecake"
+                },
+                "description": {
+                    "hy": "Նուրբ պանրային աղանդեր",
+                    "ru": "Нежный сырный десерт",
+                    "en": "Creamy cheese dessert"
+                },
+                "price": 1800,
+                "currency": "AMD",
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 1
+            }
+        ]
+    }
+}

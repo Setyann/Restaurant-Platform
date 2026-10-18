@@ -1,0 +1,157 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #20251f;
+  background: #f6f5f0;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+
+  --color-accent: #386641;
+  --color-muted: #777d75;
+  --color-surface: #ffffff;
+  --color-border: #e7e7df;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+.app {
+  width: min(100% - 32px, 720px);
+  min-height: 100vh;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.restaurant-header {
+  padding: 64px 0 32px;
+}
+
+.restaurant-label {
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.restaurant-header h1 {
+  margin: 18px 0 10px;
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+
+.restaurant-header p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.language-switcher {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.language-button {
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.language-button.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: white;
+}
+
+.menu-content {
+  display: grid;
+  gap: 32px;
+}
+
+.menu-category h2 {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  letter-spacing: -0.025em;
+}
+
+.menu-items {
+  display: grid;
+  gap: 12px;
+}
+
+.menu-item {
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.menu-item h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.menu-item p {
+  margin: 0 0 14px;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.menu-item-price {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.menu-empty {
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.menu-empty h2 {
+  margin: 0 0 8px;
+}
+
+.menu-empty p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.app-footer {
+  margin-top: auto;
+  padding: 40px 0 24px;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .restaurant-header {
+    padding-top: 44px;
+  }
+
+  .menu-item {
+    padding: 16px;
+  }
+}
