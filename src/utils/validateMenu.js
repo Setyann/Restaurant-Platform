@@ -20,9 +20,7 @@ export function validateMenu(data) {
       errors.push('Restaurant name is missing.')
     }
 
-    if (
-      !SUPPORTED_LANGUAGES.includes(restaurant.primaryLanguage)
-    ) {
+    if (!SUPPORTED_LANGUAGES.includes(restaurant.primaryLanguage)) {
       errors.push('Primary language must be hy, ru, or en.')
     }
 
@@ -38,11 +36,7 @@ export function validateMenu(data) {
         }
       }
 
-      if (
-        !restaurant.supportedLanguages.includes(
-          restaurant.primaryLanguage
-        )
-      ) {
+      if (!restaurant.supportedLanguages.includes(restaurant.primaryLanguage)) {
         errors.push('Primary language must be supported.')
       }
     }
@@ -61,14 +55,29 @@ export function validateMenu(data) {
     errors.push('Menu items must be an array.')
   }
 
-  if (!Array.isArray(menu.categories) || !Array.isArray(menu.items)) {
+  if (
+    !Array.isArray(menu.categories) ||
+    !Array.isArray(menu.items)
+  ) {
     return errors
   }
 
+  if (
+    menu.subcategories !== undefined &&
+    !Array.isArray(menu.subcategories)
+  ) {
+    errors.push('Menu subcategories must be an array when provided.')
+  }
+
+  const categories = menu.categories
+  const subcategories = Array.isArray(menu.subcategories)
+    ? menu.subcategories
+    : []
+
   const categoryIds = new Set()
 
-  for (const category of menu.categories) {
-    if (!category.id || typeof category.id !== 'string') {
+  for (const category of categories) {
+    if (!category || !category.id || typeof category.id !== 'string') {
       errors.push('Every category must have a string ID.')
       continue
     }
@@ -84,10 +93,41 @@ export function validateMenu(data) {
     }
   }
 
+  const subcategoryIds = new Set()
+  const subcategoriesById = new Map()
+
+  for (const subcategory of subcategories) {
+    if (
+      !subcategory ||
+      !subcategory.id ||
+      typeof subcategory.id !== 'string'
+    ) {
+      errors.push('Every subcategory must have a string ID.')
+      continue
+    }
+
+    if (subcategoryIds.has(subcategory.id)) {
+      errors.push(`Duplicate subcategory ID: ${subcategory.id}`)
+    }
+
+    subcategoryIds.add(subcategory.id)
+    subcategoriesById.set(subcategory.id, subcategory)
+
+    if (!categoryIds.has(subcategory.parentCategoryId)) {
+      errors.push(
+        `Subcategory "${subcategory.id}" references an unknown parent category.`
+      )
+    }
+
+    if (!subcategory.name || typeof subcategory.name !== 'object') {
+      errors.push(`Subcategory "${subcategory.id}" has no valid name.`)
+    }
+  }
+
   const itemIds = new Set()
 
   for (const item of menu.items) {
-    if (!item.id || typeof item.id !== 'string') {
+    if (!item || !item.id || typeof item.id !== 'string') {
       errors.push('Every menu item must have a string ID.')
       continue
     }
@@ -99,9 +139,21 @@ export function validateMenu(data) {
     itemIds.add(item.id)
 
     if (!categoryIds.has(item.categoryId)) {
-      errors.push(
-        `Item "${item.id}" references an unknown category.`
-      )
+      errors.push(`Item "${item.id}" references an unknown category.`)
+    }
+
+    if (item.subcategoryId !== undefined && item.subcategoryId !== null) {
+      const subcategory = subcategoriesById.get(item.subcategoryId)
+
+      if (!subcategory) {
+        errors.push(
+          `Item "${item.id}" references an unknown subcategory.`
+        )
+      } else if (subcategory.parentCategoryId !== item.categoryId) {
+        errors.push(
+          `Item "${item.id}" references a subcategory belonging to another category.`
+        )
+      }
     }
 
     if (!item.name || typeof item.name !== 'object') {

@@ -155,3 +155,27 @@ button {
     padding: 16px;
   }
 }
+
+.menu-category {
+  min-width: 0;
+}
+
+.menu-subcategory {
+  margin-top: 24px;
+}
+
+.menu-subcategory:first-child {
+  margin-top: 0;
+}
+
+.menu-subcategory-title {
+  margin: 0 0 12px;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.menu-subcategory .menu-items {
+  gap: 12px;
+}

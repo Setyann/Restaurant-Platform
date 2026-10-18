@@ -45,10 +45,43 @@
                 "sortOrder": 2
             }
         ],
+        "subcategories": [
+            {
+                "id": "espresso-drinks",
+                "parentCategoryId": "coffee",
+                "name": {
+                    "hy": "Էսպրեսսո սուրճեր",
+                    "ru": "Эспрессо",
+                    "en": "Espresso drinks"
+                },
+                "sortOrder": 1
+            },
+            {
+                "id": "milk-coffee",
+                "parentCategoryId": "coffee",
+                "name": {
+                    "hy": "Կաթով սուրճ",
+                    "ru": "Кофе с молоком",
+                    "en": "Milk coffee"
+                },
+                "sortOrder": 2
+            },
+            {
+                "id": "cakes",
+                "parentCategoryId": "desserts",
+                "name": {
+                    "hy": "Տորթեր",
+                    "ru": "Торты",
+                    "en": "Cakes"
+                },
+                "sortOrder": 1
+            }
+        ],
         "items": [
             {
                 "id": "espresso",
                 "categoryId": "coffee",
+                "subcategoryId": "espresso-drinks",
                 "name": {
                     "hy": "Էսպրեսսո",
                     "ru": "Эспрессо",
@@ -68,6 +101,7 @@
             {
                 "id": "cappuccino",
                 "categoryId": "coffee",
+                "subcategoryId": "milk-coffee",
                 "name": {
                     "hy": "Կապուչինո",
                     "ru": "Капучино",
@@ -87,6 +121,7 @@
             {
                 "id": "cheesecake",
                 "categoryId": "desserts",
+                "subcategoryId": "cakes",
                 "name": {
                     "hy": "Չիզքեյք",
                     "ru": "Чизкейк",

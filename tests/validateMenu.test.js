@@ -109,3 +109,67 @@ test('invalid currency codes are rejected', async () => {
     )
   )
 })
+
+test('duplicate subcategory IDs are detected', async () => {
+  const data = await getMenu()
+  data.menu.subcategories.push({
+    ...data.menu.subcategories[0]
+  })
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) => error.includes('Duplicate subcategory ID'))
+  )
+})
+
+test('subcategories referencing unknown categories are rejected', async () => {
+  const data = await getMenu()
+  data.menu.subcategories[0].parentCategoryId = 'unknown-category'
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) =>
+      error.includes('references an unknown parent category')
+    )
+  )
+})
+
+test('items referencing unknown subcategories are rejected', async () => {
+  const data = await getMenu()
+  data.menu.items[0].subcategoryId = 'unknown-subcategory'
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) =>
+      error.includes('references an unknown subcategory')
+    )
+  )
+})
+
+test('items cannot reference subcategories from another category', async () => {
+  const data = await getMenu()
+  data.menu.items[0].subcategoryId = 'cakes'
+
+  const errors = validateMenu(data)
+
+  assert.ok(
+    errors.some((error) =>
+      error.includes('belonging to another category')
+    )
+  )
+})
+
+test('legacy menus without subcategories remain valid', async () => {
+  const data = await getMenu()
+
+  delete data.menu.subcategories
+
+  for (const item of data.menu.items) {
+    delete item.subcategoryId
+  }
+
+  assert.deepEqual(validateMenu(data), [])
+})

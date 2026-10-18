@@ -2,6 +2,7 @@ import './style.css'
 import { getMenu } from './services/menuService.js'
 import { validateMenu } from './utils/validateMenu.js'
 import { getLocalizedText as localizeText } from './utils/getLocalizedText.js'
+import { escapeHtml } from './utils/escapeHtml.js'
 
 const { restaurant, menu } = getMenu()
 
@@ -81,12 +82,47 @@ function renderCategory(category) {
 
   if (availableItems.length === 0) return ''
 
+  const subcategories = (menu.subcategories ?? [])
+    .filter((subcategory) => subcategory.parentCategoryId === category.id)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+
+  // Keep items without a subcategory visible for older menu data.
+  const uncategorizedItems = availableItems.filter(
+    (item) => !item.subcategoryId
+  )
+
+  const uncategorizedSection = uncategorizedItems.length > 0
+    ? `
+      <div class="menu-items">
+        ${uncategorizedItems.map(renderItem).join('')}
+      </div>
+    `
+    : ''
+
+  const subcategorySections = subcategories.map((subcategory) => {
+    const subcategoryItems = availableItems.filter(
+      (item) => item.subcategoryId === subcategory.id
+    )
+
+    if (subcategoryItems.length === 0) return ''
+
+    return `
+      <section class="menu-subcategory">
+        <h3 class="menu-subcategory-title">
+          ${getLocalizedText(subcategory.name)}
+        </h3>
+        <div class="menu-items">
+          ${subcategoryItems.map(renderItem).join('')}
+        </div>
+      </section>
+    `
+  }).join('')
+
   return `
     <section class="menu-category">
       <h2>${getLocalizedText(category.name)}</h2>
-      <div class="menu-items">
-        ${availableItems.map(renderItem).join('')}
-      </div>
+      ${uncategorizedSection}
+      ${subcategorySections}
     </section>
   `
 }
