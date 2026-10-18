@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { validateMenu } from '../src/utils/validateMenu.js'
 import { escapeHtml } from '../src/utils/escapeHtml.js'
 import { readFile } from 'node:fs/promises'
+import { getLocalizedText } from '../src/utils/getLocalizedText.js'
 
 const menuUrl = new URL(
   '../src/data/restaurants/demo/menu.json',
@@ -62,5 +63,49 @@ test('HTML special characters are escaped', () => {
   assert.equal(
     escapeHtml('<script>alert("x")</script>'),
     '&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;'
+  )
+})
+
+test('missing translation falls back to the default language', () => {
+  assert.equal(
+    getLocalizedText(
+      { ru: 'Кофе', en: 'Coffee' },
+      'hy',
+      'ru'
+    ),
+    'Кофе'
+  )
+})
+
+test('invalid primary language is rejected', async () => {
+  const data = structuredClone(await getMenu())
+  data.restaurant.primaryLanguage = 'fr'
+
+  assert.ok(
+    validateMenu(data).some((error) =>
+      error.includes('Primary language must be hy, ru, or en')
+    )
+  )
+})
+
+test('duplicate menu item IDs are detected', async () => {
+  const data = structuredClone(await getMenu())
+  data.menu.items.push({ ...data.menu.items[0] })
+
+  assert.ok(
+    validateMenu(data).some((error) =>
+      error.includes('Duplicate menu item ID')
+    )
+  )
+})
+
+test('invalid currency codes are rejected', async () => {
+  const data = structuredClone(await getMenu())
+  data.menu.items[0].currency = 'US'
+
+  assert.ok(
+    validateMenu(data).some((error) =>
+      error.includes('invalid currency code')
+    )
   )
 })

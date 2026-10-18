@@ -1,7 +1,7 @@
 import './style.css'
 import { getMenu } from './services/menuService.js'
 import { validateMenu } from './utils/validateMenu.js'
-import { escapeHtml } from './utils/escapeHtml.js'
+import { getLocalizedText as localizeText } from './utils/getLocalizedText.js'
 
 const { restaurant, menu } = getMenu()
 
@@ -45,16 +45,7 @@ function getInitialLanguage() {
 let currentLanguage = getInitialLanguage()
 
 function getLocalizedText(value) {
-  if (!value || typeof value !== 'object') return ''
-
-  return escapeHtml(
-    value[currentLanguage] ||
-    value[defaultLanguage] ||
-    value.ru ||
-    value.en ||
-    value.hy ||
-    ''
-  )
+  return localizeText(value, currentLanguage, defaultLanguage)
 }
 
 function formatPrice(price, currency) {
