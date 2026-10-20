@@ -4,7 +4,29 @@ import { validateMenu } from './utils/validateMenu.js'
 import { getLocalizedText as localizeText } from './utils/getLocalizedText.js'
 import { escapeHtml } from './utils/escapeHtml.js'
 
-const { restaurant, menu } = getMenu()
+const restaurantSlug = new URLSearchParams(
+  window.location.search
+).get('restaurant') || 'demo'
+
+const menuData = getMenu(restaurantSlug)
+const app = document.querySelector('#app')
+
+if (!menuData) {
+  app.innerHTML = `
+    <main class="app">
+      <section class="menu-empty">
+        <h1>Restaurant not found</h1>
+        <p>
+          This restaurant does not exist or its menu is unavailable.
+        </p>
+      </section>
+    </main>
+  `
+
+  throw new Error(`Restaurant not found: ${restaurantSlug}`)
+}
+
+const { restaurant, menu } = menuData
 
 const validationErrors = validateMenu({ restaurant, menu })
 
@@ -31,7 +53,9 @@ document.documentElement.style.setProperty('--color-accent', accentColor)
 
 function getInitialLanguage() {
   try {
-    const savedLanguage = localStorage.getItem('restaurant-menu-language')
+    const savedLanguage = localStorage.getItem(
+      `restaurant-menu-language-${restaurant.slug}`
+    )
 
     if (supportedLanguages.includes(savedLanguage)) {
       return savedLanguage
@@ -225,7 +249,7 @@ function renderMenu() {
 
       try {
         localStorage.setItem(
-          'restaurant-menu-language',
+          `restaurant-menu-language-${restaurant.slug}`,
           currentLanguage
         )
       } catch {

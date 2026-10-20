@@ -1,0 +1,303 @@
+{
+    "restaurant": {
+        "id": "second-cafe",
+        "slug": "second-cafe",
+        "name": {
+            "hy": "Երկրորդ սրճարան",
+            "ru": "Второе кафе",
+            "en": "Second Cafe"
+        },
+        "description": {
+            "hy": "",
+            "ru": "",
+            "en": ""
+        },
+        "primaryLanguage": "hy",
+        "supportedLanguages": [
+            "hy",
+            "ru",
+            "en"
+        ],
+        "branding": {
+            "logo": null,
+            "accentColor": "#386641"
+        }
+    },
+    "menu": {
+        "version": 1,
+        "categories": [
+            {
+                "id": "coffee",
+                "name": {
+                    "hy": "Սուրճ",
+                    "ru": "Кофе",
+                    "en": "Cafe"
+                },
+                "sortOrder": 1
+            },
+            {
+                "id": "desserts",
+                "name": {
+                    "hy": "Աղանդեր",
+                    "ru": "Десерты",
+                    "en": "Desserts"
+                },
+                "sortOrder": 2
+            }
+        ],
+        "subcategories": [
+            {
+                "id": "espresso-drinks",
+                "parentCategoryId": "coffee",
+                "name": {
+                    "hy": "Էսպրեսսո սուրճեր",
+                    "ru": "Эспрессо",
+                    "en": "Espresso drinks"
+                },
+                "sortOrder": 1
+            },
+            {
+                "id": "milk-coffee",
+                "parentCategoryId": "coffee",
+                "name": {
+                    "hy": "Կաթով սուրճ",
+                    "ru": "Кофе с молоком",
+                    "en": "Milk coffee"
+                },
+                "sortOrder": 2
+            },
+            {
+                "id": "cakes",
+                "parentCategoryId": "desserts",
+                "name": {
+                    "hy": "Տորթեր",
+                    "ru": "Торты",
+                    "en": "Cakes"
+                },
+                "sortOrder": 1
+            },
+            {
+                "id": "pastries",
+                "parentCategoryId": "desserts",
+                "name": {
+                    "hy": "Թխվածքներ",
+                    "ru": "Выпечка",
+                    "en": "Pastries"
+                },
+                "sortOrder": 2
+            }
+        ],
+        "items": [
+            {
+                "id": "espresso",
+                "categoryId": "coffee",
+                "subcategoryId": "espresso-drinks",
+                "name": {
+                    "hy": "Էսպրեսսո",
+                    "ru": "Эспрессо",
+                    "en": "Espresso"
+                },
+                "description": {
+                    "hy": "Դասական սուրճ",
+                    "ru": "Классический кофе",
+                    "en": "Classic coffee"
+                },
+                "price": 800,
+                "currency": "AMD",
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 1
+            },
+            {
+                "id": "cappuccino",
+                "categoryId": "coffee",
+                "subcategoryId": "milk-coffee",
+                "name": {
+                    "hy": "Կապուչինո",
+                    "ru": "Капучино",
+                    "en": "Cappuccino"
+                },
+                "description": {
+                    "hy": "Սուրճ կաթով",
+                    "ru": "Кофе с молоком",
+                    "en": "Coffee with milk"
+                },
+                "variants": [
+                    {
+                        "id": "small",
+                        "name": {
+                            "hy": "Փոքր",
+                            "ru": "Маленький",
+                            "en": "Small"
+                        },
+                        "price": 1000,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "medium",
+                        "name": {
+                            "hy": "Միջին",
+                            "ru": "Средний",
+                            "en": "Medium"
+                        },
+                        "price": 1200,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "large",
+                        "name": {
+                            "hy": "Մեծ",
+                            "ru": "Большой",
+                            "en": "Large"
+                        },
+                        "price": 1500,
+                        "currency": "AMD"
+                    }
+                ],
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 2
+            },
+            {
+                "id": "cheesecake",
+                "categoryId": "desserts",
+                "subcategoryId": "cakes",
+                "name": {
+                    "hy": "Չիզքեյք",
+                    "ru": "Чизкейк",
+                    "en": "Cheesecake"
+                },
+                "description": {
+                    "hy": "Նուրբ պանրային աղանդեր",
+                    "ru": "Нежный сырный десерт",
+                    "en": "Creamy cheese dessert"
+                },
+                "price": 1800,
+                "currency": "AMD",
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 1
+            },
+            {
+                "id": "croissant",
+                "categoryId": "desserts",
+                "subcategoryId": "pastries",
+                "name": {
+                    "hy": "Կրուասան",
+                    "ru": "Круассан",
+                    "en": "croissant"
+                },
+                "description": {
+                    "hy": "Թխվածք, որը պատրաստվում է խմորից և կարագից",
+                    "ru": "Хлебобулочные изделия, приготовленные из теста и масла",
+                    "en": "Baked goods made from dough and butter"
+                },
+                "variants": [
+                    {
+                        "id": "plain",
+                        "name": {
+                            "hy": "Պարզ",
+                            "ru": "Простой",
+                            "en": "Plain"
+                        },
+                        "price": 500,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "chocolate",
+                        "name": {
+                            "hy": "Շոկոլադով",
+                            "ru": "С шоколадом",
+                            "en": "With chocolate"
+                        },
+                        "price": 700,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "almond",
+                        "name": {
+                            "hy": "Ալմոնդով",
+                            "ru": "С миндалем",
+                            "en": "With almond"
+                        },
+                        "price": 800,
+                        "currency": "AMD"
+                    }
+                ],
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 2
+            },
+            {
+                "id": "tiramisu",
+                "categoryId": "desserts",
+                "subcategoryId": "cakes",
+                "name": {
+                    "hy": "Տիրամիսու",
+                    "ru": "Тирамису",
+                    "en": "Tiramisu"
+                },
+                "description": {
+                    "hy": "Իտալական աղանդեր, պատրաստված մսկաթի և սուրճի համադրությամբ",
+                    "ru": "Итальянский десерт, приготовленный из маскарпоне и кофе",
+                    "en": "Italian dessert made with mascarpone and coffee"
+                },
+                "variants": [
+                    {
+                        "id": "plain",
+                        "name": {
+                            "hy": "Պարզ",
+                            "ru": "Простой",
+                            "en": "Plain"
+                        },
+                        "price": 900,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "chocolate",
+                        "name": {
+                            "hy": "Շոկոլադով",
+                            "ru": "С шоколадом",
+                            "en": "With chocolate"
+                        },
+                        "price": 1100,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "strawberry",
+                        "name": {
+                            "hy": "Ելակով",
+                            "ru": "С клубникой",
+                            "en": "With strawberry"
+                        },
+                        "price": 1200,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "caramel",
+                        "name": {
+                            "hy": "Կարամելային",
+                            "ru": "С карамелью",
+                            "en": "With caramel"
+                        },
+                        "price": 1300,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "hazelnut",
+                        "name": {
+                            "hy": "Պնդուկով",
+                            "ru": "С лесным орехом",
+                            "en": "With hazelnut"
+                        },
+                        "price": 1400,
+                        "currency": "AMD"
+                    }
+                ],
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 3
+            }
+        ]
+    }
+}
