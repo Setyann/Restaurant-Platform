@@ -75,6 +75,16 @@
                     "en": "Cakes"
                 },
                 "sortOrder": 1
+            },
+            {
+                "id": "pastries",
+                "parentCategoryId": "desserts",
+                "name": {
+                    "hy": "Թխվածքներ",
+                    "ru": "Выпечка",
+                    "en": "Pastries"
+                },
+                "sortOrder": 2
             }
         ],
         "items": [
@@ -167,6 +177,56 @@
                 "image": null,
                 "isAvailable": true,
                 "sortOrder": 1
+            },
+            {
+                "id": "croissant",
+                "categoryId": "desserts",
+                "subcategoryId": "pastries",
+                "name": {
+                    "hy": "Կրուասան",
+                    "ru": "Круассан",
+                    "en": "croissant"
+                },
+                "description": {
+                    "hy": "Թխվածք, որը պատրաստվում է խմորից և կարագից",
+                    "ru": "Хлебобулочные изделия, приготовленные из теста и масла",
+                    "en": "Baked goods made from dough and butter"
+                },
+                "variants": [
+                    {
+                        "id": "plain",
+                        "name": {
+                            "hy": "Պարզ",
+                            "ru": "Простой",
+                            "en": "Plain"
+                        },
+                        "price": 500,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "chocolate",
+                        "name": {
+                            "hy": "Շոկոլադով",
+                            "ru": "С шоколадом",
+                            "en": "With chocolate"
+                        },
+                        "price": 700,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "almond",
+                        "name": {
+                            "hy": "Ալմոնդով",
+                            "ru": "С миндалем",
+                            "en": "With almond"
+                        },
+                        "price": 800,
+                        "currency": "AMD"
+                    }
+                ],
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 2
             }
         ]
     }
