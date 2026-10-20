@@ -227,6 +227,76 @@
                 "image": null,
                 "isAvailable": true,
                 "sortOrder": 2
+            },
+            {
+                "id": "tiramisu",
+                "categoryId": "desserts",
+                "subcategoryId": "cakes",
+                "name": {
+                    "hy": "Տիրամիսու",
+                    "ru": "Тирамису",
+                    "en": "Tiramisu"
+                },
+                "description": {
+                    "hy": "Իտալական աղանդեր, պատրաստված մսկաթի և սուրճի համադրությամբ",
+                    "ru": "Итальянский десерт, приготовленный из маскарпоне и кофе",
+                    "en": "Italian dessert made with mascarpone and coffee"
+                },
+                "variants": [
+                    {
+                        "id": "plain",
+                        "name": {
+                            "hy": "Պարզ",
+                            "ru": "Простой",
+                            "en": "Plain"
+                        },
+                        "price": 900,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "chocolate",
+                        "name": {
+                            "hy": "Շոկոլադով",
+                            "ru": "С шоколадом",
+                            "en": "With chocolate"
+                        },
+                        "price": 1100,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "strawberry",
+                        "name": {
+                            "hy": "Ելակով",
+                            "ru": "С клубникой",
+                            "en": "With strawberry"
+                        },
+                        "price": 1200,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "caramel",
+                        "name": {
+                            "hy": "Կարամելային",
+                            "ru": "С карамелью",
+                            "en": "With caramel"
+                        },
+                        "price": 1300,
+                        "currency": "AMD"
+                    },
+                    {
+                        "id": "hazelnut",
+                        "name": {
+                            "hy": "Պնդուկով",
+                            "ru": "С лесным орехом",
+                            "en": "With hazelnut"
+                        },
+                        "price": 1400,
+                        "currency": "AMD"
+                    }
+                ],
+                "image": null,
+                "isAvailable": true,
+                "sortOrder": 3
             }
         ]
     }
