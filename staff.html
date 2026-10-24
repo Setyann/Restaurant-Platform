@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Заказы</title>
+  </head>
+  <body>
+    <section id="login-view" class="staff-login" hidden>
+      <h1>Окно персонала</h1>
+      <p class="muted">Войдите в аккаунт, которому предоставлен доступ к ресторану.</p>
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="username" required />
+        <label for="password">Пароль</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+        <button type="submit">Войти</button>
+      </form>
+      <p id="login-status" class="status" role="status"></p>
+    </section>
+
+    <main id="board-view" hidden>
+      <header class="board-header">
+        <div>
+          <h1 id="board-title">Заказы</h1>
+          <p id="board-status" class="status" role="status"></p>
+        </div>
+        <div class="board-actions">
+          <button id="sound-button" type="button" class="ghost" aria-pressed="false">Звук: выкл</button>
+          <button id="logout-button" type="button" class="ghost">Выйти</button>
+        </div>
+      </header>
+
+      <p id="locked-message" class="locked" hidden>
+        Окно персонала доступно на тарифе Standard.
+      </p>
+
+      <div id="columns" class="columns">
+        <section class="column" data-status="new"><h2>Новые</h2><div class="cards"></div></section>
+        <section class="column" data-status="preparing"><h2>Готовятся</h2><div class="cards"></div></section>
+        <section class="column" data-status="ready"><h2>Готовы к выдаче</h2><div class="cards"></div></section>
+      </div>
+    </main>
+
+    <script type="module" src="/src/staff.js"></script>
+  </body>
+</html>

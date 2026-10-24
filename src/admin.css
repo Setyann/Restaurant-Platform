@@ -1,0 +1,78 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #f2f2f0;
+  background: #101110;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+h1, h2, h3, h4, p { margin: 0; }
+[hidden] { display: none !important; }
+.muted, .status { color: #a3a8a0; font-size: 0.875rem; }
+code { padding: 0.1rem 0.35rem; background: #232623; border-radius: 6px; overflow-wrap: anywhere; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
+  outline: 2px solid #8fbf7f; outline-offset: 2px;
+}
+
+input[type="text"], input[type="email"], input[type="password"], input:not([type]), input[inputmode],
+select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: #101110;
+  border: 1px solid #3a3d3a;
+  border-radius: 10px;
+}
+
+.card { display: grid; gap: 0.75rem; padding: 2rem; background: #191b19; border: 1px solid #303330; border-radius: 16px; }
+.narrow { width: min(100% - 2rem, 28rem); margin: 10vh auto 0; }
+.card form { display: grid; gap: 0.6rem; }
+.card label { font-size: 0.875rem; color: #a3a8a0; }
+#mfa-qr { background: #fff; padding: 0.5rem; border-radius: 10px; justify-self: center; }
+
+button { cursor: pointer; }
+button:disabled { opacity: 0.55; cursor: progress; }
+.primary { padding: 0.65rem 1rem; color: #101110; background: #a8d493; border: 0; border-radius: 10px; font-weight: 600; }
+.ghost { padding: 0.5rem 0.85rem; background: transparent; border: 1px solid #3a3d3a; border-radius: 10px; }
+.danger { padding: 0.55rem 0.9rem; color: #e7a09a; background: transparent; border: 1px solid #5a3b38; border-radius: 10px; }
+
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid #262926; }
+.tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; padding: 0.75rem 1.25rem 0; }
+.tabs button { padding: 0.55rem 0.9rem; background: transparent; border: 1px solid transparent; border-radius: 10px; color: #a3a8a0; }
+.tabs button.active { color: #f2f2f0; background: #191b19; border-color: #303330; }
+
+.notice { position: sticky; top: 0.5rem; z-index: 10; width: min(100% - 2.5rem, 40rem); margin: 0.75rem auto 0; padding: 0.7rem 1rem; background: #1f3a22; border: 1px solid #3c6b41; border-radius: 10px; }
+.notice.error { background: #3b1f1d; border-color: #7a3a35; }
+
+.tab { display: grid; gap: 0.75rem; width: min(100% - 2.5rem, 56rem); margin: 1rem auto 3rem; }
+.empty { padding: 1rem; color: #8b9087; border: 1px dashed #3a3d3a; border-radius: 12px; }
+
+details.entity { background: #191b19; border: 1px solid #303330; border-radius: 12px; }
+details.entity details.entity { background: #141614; margin-top: 0.5rem; }
+details.entity > summary { padding: 0.8rem 1rem; cursor: pointer; font-weight: 600; list-style-position: inside; }
+details.entity > .body { display: grid; gap: 0.75rem; padding: 0 1rem 1rem; }
+details.add > summary { color: #a8d493; }
+
+.entity-form { display: grid; gap: 0.6rem; }
+.field, .lang { display: grid; gap: 0.25rem; font-size: 0.85rem; color: #a3a8a0; }
+.i18n { display: grid; gap: 0.4rem; margin: 0; padding: 0; border: 0; }
+.i18n legend { padding: 0; margin-bottom: 0.3rem; font-size: 0.85rem; color: #a3a8a0; }
+.check { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.variant { padding: 0.75rem; background: #101110; border: 1px solid #2a2d2a; border-radius: 10px; }
+.badge { margin-left: 0.5rem; padding: 0.1rem 0.5rem; font-size: 0.75rem; font-weight: 500; color: #e7c27a; border: 1px solid #5b4a22; border-radius: 999px; }
+
+.table-row, .list-row { display: grid; grid-template-columns: 6rem 1fr auto auto auto; gap: 0.5rem; align-items: center; padding: 0.6rem 0.75rem; background: #191b19; border: 1px solid #303330; border-radius: 12px; }
+.list-row { grid-template-columns: 1fr auto auto; }
+.log-row { display: grid; grid-template-columns: 11rem 6rem 1fr; gap: 0.5rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid #262926; font-size: 0.875rem; }
+.inline-form { display: flex; gap: 0.5rem; }
+.inline-form input { flex: 1; }
+.tips { margin: 0; padding-left: 1.2rem; color: #c9ccc6; display: grid; gap: 0.35rem; }
+
+@media (max-width: 700px) {
+  .table-row, .list-row { grid-template-columns: 1fr; }
+  .log-row { grid-template-columns: 1fr; }
+  .inline-form { flex-direction: column; }
+}
