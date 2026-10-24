@@ -44,16 +44,17 @@ const bySort = (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
 // ---------- messages ----------
 
 const MESSAGES = {
-  name_required: 'Укажите название хотя бы на одном языке.',
-  too_long: 'Текст слишком длинный.',
-  bad_price: 'Цена указана неверно.',
-  bad_currency: 'Валюта — три латинские буквы, например AMD.',
-  bad_number: 'Порядок — целое число от 0 до 100000.',
-  forbidden: 'Недостаточно прав или вход без 2FA. Выйдите и войдите заново.',
-  not_allowed: 'Недостаточно прав.',
-  user_not_found: 'Пользователь с таким email не зарегистрирован. Аккаунт создаёт администратор платформы.',
-  already_member: 'Этот пользователь уже в команде.',
-  not_found: 'Запись не найдена.'
+  name_required: 'Enter a name in at least one language.',
+  too_long: 'The text is too long.',
+  bad_price: 'The price is not valid.',
+  bad_currency: 'Currency must be three Latin letters, for example AMD.',
+  bad_number: 'Order must be a whole number from 0 to 100000.',
+  forbidden: 'Not allowed, or 2FA is not active for this session. Sign out and sign in again.',
+  not_allowed: 'Not allowed.',
+  user_not_found: 'No account with this email. The platform administrator creates accounts.',
+  already_member: 'This person is already on the team.',
+  not_found: 'Item not found.',
+  invalid_info: 'Check the details: the phone, email or website format is not valid, or a text is too long.'
 }
 
 function explain(error) {
@@ -61,10 +62,10 @@ function explain(error) {
   const known = Object.keys(MESSAGES).find((key) => text.includes(key))
   if (known) return MESSAGES[known]
   if (error?.code === '42501' || /row-level security|permission denied/i.test(text)) return MESSAGES.forbidden
-  if (error?.code === '23505') return 'Такое значение уже существует.'
-  if (error?.code === '23503') return 'Нельзя удалить: есть связанные записи (например, блюда в категории).'
-  if (error?.code === '23514') return 'Данные не прошли проверку (длина, формат, цена).'
-  return 'Не удалось выполнить действие. Попробуйте ещё раз.'
+  if (error?.code === '23505') return 'This value already exists.'
+  if (error?.code === '23503') return 'Cannot delete: related items exist (for example, dishes in this category).'
+  if (error?.code === '23514') return 'The data did not pass validation (length, format or price).'
+  return 'The action failed. Please try again.'
 }
 
 let noticeTimer = null
@@ -129,7 +130,7 @@ function i18nField(title, value, multiline) {
   }
 }
 
-function buildForm(spec, { onSave, onDelete, saveLabel = 'Сохранить' }) {
+function buildForm(spec, { onSave, onDelete, saveLabel = 'Save' }) {
   const readers = []
   const form = el('form', { class: 'entity-form' })
 
@@ -151,11 +152,15 @@ function buildForm(spec, { onSave, onDelete, saveLabel = 'Сохранить' })
       form.append(el('label', { class: 'field' }, el('span', {}, field.label), control))
       readers.push([field.key, () => control.value || null])
     } else {
-      const control = el('input', { type: 'text', maxlength: 20, value: field.value ?? '' })
+      const control = el('input', {
+        type: 'text', maxlength: field.maxLength ?? 20, value: field.value ?? '',
+        placeholder: field.placeholder
+      })
       form.append(el('label', { class: 'field' }, el('span', {}, field.label), control))
 
       if (field.kind === 'price') readers.push([field.key, () => parsePrice(control.value)])
       else if (field.kind === 'currency') readers.push([field.key, () => normalizeCurrency(control.value)])
+      else if (field.kind === 'text') readers.push([field.key, () => control.value.trim()])
       else readers.push([field.key, () => {
         const number = Number.parseInt(control.value || '0', 10)
         if (!Number.isFinite(number) || number < 0 || number > 100000) throw new Error('bad_number')
@@ -171,9 +176,9 @@ function buildForm(spec, { onSave, onDelete, saveLabel = 'Сохранить' })
       type: 'button',
       class: 'danger',
       onclick: () => {
-        if (window.confirm('Удалить? Это действие нельзя отменить.')) act(onDelete, 'Удалено')
+        if (window.confirm('Delete? This cannot be undone.')) act(onDelete, 'Deleted')
       }
-    }, 'Удалить'))
+    }, 'Delete'))
   }
 
   form.append(buttons)
@@ -184,7 +189,7 @@ function buildForm(spec, { onSave, onDelete, saveLabel = 'Сохранить' })
       const payload = {}
       for (const [key, read] of readers) payload[key] = read()
       await onSave(payload)
-    }, 'Сохранено')
+    }, 'Saved')
   })
 
   return form
@@ -232,27 +237,27 @@ async function refreshMenu() {
 
 function itemFields(item, subcategoryId, subs) {
   return [
-    { key: 'name', kind: 'i18n', label: 'Название', value: item?.name, required: true },
-    { key: 'description', kind: 'i18n-long', label: 'Описание', value: item?.description },
-    { key: 'price', kind: 'price', label: 'Цена (пусто, если у блюда есть варианты)', value: item?.price },
-    { key: 'currency', kind: 'currency', label: 'Валюта', value: item?.currency ?? 'AMD' },
+    { key: 'name', kind: 'i18n', label: 'Name', value: item?.name, required: true },
+    { key: 'description', kind: 'i18n-long', label: 'Description', value: item?.description },
+    { key: 'price', kind: 'price', label: 'Price (leave empty if the dish has variants)', value: item?.price },
+    { key: 'currency', kind: 'currency', label: 'Currency', value: item?.currency ?? 'AMD' },
     ...(subs ? [{
-      key: 'subcategory_id', kind: 'select', label: 'Подкатегория', value: item?.subcategory_id ?? subcategoryId ?? '',
-      options: [{ value: '', label: '— без подкатегории —' }, ...subs.map((s) => ({ value: s.id, label: label(s.name) }))]
+      key: 'subcategory_id', kind: 'select', label: 'Subcategory', value: item?.subcategory_id ?? subcategoryId ?? '',
+      options: [{ value: '', label: '— no subcategory —' }, ...subs.map((s) => ({ value: s.id, label: label(s.name) }))]
     }] : []),
-    { key: 'is_available', kind: 'checkbox', label: 'Доступно гостям', value: item?.is_available ?? true },
-    { key: 'sort_order', kind: 'number', label: 'Порядок', value: item?.sort_order ?? 0 }
+    { key: 'is_available', kind: 'checkbox', label: 'Available to guests', value: item?.is_available ?? true },
+    { key: 'sort_order', kind: 'number', label: 'Order', value: item?.sort_order ?? 0 }
   ]
 }
 
 function variantBlock(item, variant) {
   return el('div', { class: 'variant' }, buildForm([
-    { key: 'name', kind: 'i18n', label: 'Вариант (например, Большой)', value: variant?.name, required: true },
-    { key: 'price', kind: 'price', label: 'Цена', value: variant?.price },
-    { key: 'currency', kind: 'currency', label: 'Валюта', value: variant?.currency ?? item.currency ?? 'AMD' },
-    { key: 'sort_order', kind: 'number', label: 'Порядок', value: variant?.sort_order ?? 0 }
+    { key: 'name', kind: 'i18n', label: 'Variant (for example, Large)', value: variant?.name, required: true },
+    { key: 'price', kind: 'price', label: 'Price', value: variant?.price },
+    { key: 'currency', kind: 'currency', label: 'Currency', value: variant?.currency ?? item.currency ?? 'AMD' },
+    { key: 'sort_order', kind: 'number', label: 'Order', value: variant?.sort_order ?? 0 }
   ], {
-    saveLabel: variant ? 'Сохранить вариант' : 'Добавить вариант',
+    saveLabel: variant ? 'Save variant' : 'Add variant',
     onSave: async (payload) => {
       if (payload.price === null) throw new Error('bad_price')
       if (variant) await updateRow('item_variants', variant.id, payload)
@@ -265,10 +270,10 @@ function variantBlock(item, variant) {
 
 function itemBlock(item, subs) {
   const variants = data.variants.filter((v) => v.item_id === item.id).sort(bySort)
-  const price = variants.length ? `${variants.length} вар.` : (item.price ?? '—')
+  const price = variants.length ? `${variants.length} var.` : (item.price ?? '—')
 
   const summary = el('span', {}, `${label(item.name)} · ${price} ${item.currency ?? ''}`,
-    item.is_available ? null : el('span', { class: 'badge' }, 'скрыто'))
+    item.is_available ? null : el('span', { class: 'badge' }, 'hidden'))
 
   return el('details', { class: 'entity', 'data-key': `i:${item.id}` },
     el('summary', {}, summary),
@@ -277,9 +282,9 @@ function itemBlock(item, subs) {
         onSave: async (payload) => { await updateRow('menu_items', item.id, payload); await refreshMenu() },
         onDelete: async () => { await deleteRow('menu_items', item.id); await refreshMenu() }
       }),
-      el('h4', {}, 'Варианты'),
+      el('h4', {}, 'Variants'),
       variants.map((variant) => variantBlock(item, variant)),
-      section(`av:${item.id}`, '＋ Добавить вариант', variantBlock(item, null))
+      section(`av:${item.id}`, '＋ Add variant', variantBlock(item, null))
     ))
 }
 
@@ -287,9 +292,9 @@ function categoryBlock(category) {
   const subs = data.subcategories.filter((s) => s.category_id === category.id).sort(bySort)
   const items = data.items.filter((i) => i.category_id === category.id).sort(bySort)
 
-  const addItem = (subcategoryId) => section(`ai:${category.id}:${subcategoryId ?? ''}`, '＋ Добавить блюдо',
+  const addItem = (subcategoryId) => section(`ai:${category.id}:${subcategoryId ?? ''}`, '＋ Add dish',
     buildForm(itemFields(null, subcategoryId, null), {
-      saveLabel: 'Добавить блюдо',
+      saveLabel: 'Add dish',
       onSave: async (payload) => {
         await insertRow('menu_items', 'i', { category_id: category.id, subcategory_id: subcategoryId, ...payload })
         await refreshMenu()
@@ -298,19 +303,19 @@ function categoryBlock(category) {
 
   return section(`c:${category.id}`, label(category.name),
     buildForm([
-      { key: 'name', kind: 'i18n', label: 'Название категории', value: category.name, required: true },
-      { key: 'sort_order', kind: 'number', label: 'Порядок', value: category.sort_order ?? 0 }
+      { key: 'name', kind: 'i18n', label: 'Category name', value: category.name, required: true },
+      { key: 'sort_order', kind: 'number', label: 'Order', value: category.sort_order ?? 0 }
     ], {
       onSave: async (payload) => { await updateRow('categories', category.id, payload); await refreshMenu() },
       onDelete: async () => { await deleteRow('categories', category.id); await refreshMenu() }
     }),
-    el('h4', {}, 'Блюда'),
+    el('h4', {}, 'Dishes'),
     items.filter((i) => !i.subcategory_id).map((i) => itemBlock(i, subs)),
     addItem(null),
     subs.map((sub) => section(`s:${sub.id}`, `↳ ${label(sub.name)}`,
       buildForm([
-        { key: 'name', kind: 'i18n', label: 'Название подкатегории', value: sub.name, required: true },
-        { key: 'sort_order', kind: 'number', label: 'Порядок', value: sub.sort_order ?? 0 }
+        { key: 'name', kind: 'i18n', label: 'Subcategory name', value: sub.name, required: true },
+        { key: 'sort_order', kind: 'number', label: 'Order', value: sub.sort_order ?? 0 }
       ], {
         onSave: async (payload) => { await updateRow('subcategories', sub.id, payload); await refreshMenu() },
         onDelete: async () => { await deleteRow('subcategories', sub.id); await refreshMenu() }
@@ -318,12 +323,12 @@ function categoryBlock(category) {
       items.filter((i) => i.subcategory_id === sub.id).map((i) => itemBlock(i, subs)),
       addItem(sub.id)
     )),
-    section(`as:${category.id}`, '＋ Добавить подкатегорию',
+    section(`as:${category.id}`, '＋ Add subcategory',
       buildForm([
-        { key: 'name', kind: 'i18n', label: 'Название подкатегории', required: true },
-        { key: 'sort_order', kind: 'number', label: 'Порядок', value: subs.length }
+        { key: 'name', kind: 'i18n', label: 'Subcategory name', required: true },
+        { key: 'sort_order', kind: 'number', label: 'Order', value: subs.length }
       ], {
-        saveLabel: 'Добавить подкатегорию',
+        saveLabel: 'Add subcategory',
         onSave: async (payload) => {
           await insertRow('subcategories', 's', { category_id: category.id, ...payload })
           await refreshMenu()
@@ -338,18 +343,18 @@ function renderMenu() {
     [...box.querySelectorAll('details[open][data-key]')].map((node) => node.dataset.key))
 
   if (!menuId) {
-    fill(box, el('p', { class: 'empty' }, 'Опубликованное меню не найдено. Его создаёт администратор платформы.'))
+    fill(box, el('p', { class: 'empty' }, 'No published menu found. The platform administrator creates it.'))
     return
   }
 
   fill(
     box,
-    section('add-category', '＋ Добавить категорию',
+    section('add-category', '＋ Add category',
       buildForm([
-        { key: 'name', kind: 'i18n', label: 'Название категории', required: true },
-        { key: 'sort_order', kind: 'number', label: 'Порядок', value: data.categories.length }
+        { key: 'name', kind: 'i18n', label: 'Category name', required: true },
+        { key: 'sort_order', kind: 'number', label: 'Order', value: data.categories.length }
       ], {
-        saveLabel: 'Добавить категорию',
+        saveLabel: 'Add category',
         onSave: async (payload) => { await insertRow('categories', 'c', payload); await refreshMenu() }
       })),
     data.categories.sort(bySort).map(categoryBlock)
@@ -358,6 +363,38 @@ function renderMenu() {
   box.querySelectorAll('details[data-key]').forEach((node) => {
     if (open.has(node.dataset.key)) node.open = true
   })
+}
+
+// ---------- restaurant info (shown in the guest footer) ----------
+
+function renderInfo() {
+  const info = restaurant.info ?? {}
+
+  const details = section('info-form', 'Details', buildForm([
+      { key: 'about', kind: 'i18n-long', label: 'About the restaurant', value: info.about },
+      { key: 'address', kind: 'text', label: 'Address', value: info.address, maxLength: 200 },
+      { key: 'hours', kind: 'text', label: 'Opening hours (for example, Mon–Sun 09:00–22:00)', value: info.hours, maxLength: 200 },
+      { key: 'phone', kind: 'text', label: 'Phone', value: info.phone, maxLength: 25, placeholder: '+374 10 123456' },
+      { key: 'email', kind: 'text', label: 'Contact email', value: info.email, maxLength: 120 },
+      { key: 'website', kind: 'text', label: 'Website', value: info.website, maxLength: 200, placeholder: 'https://' }
+    ], {
+      saveLabel: 'Save details',
+      onSave: async (payload) => {
+        const { error } = await supabase.rpc('update_restaurant_info', {
+          p_restaurant: restaurant.id, p_info: payload
+        })
+        if (error) throw error
+        restaurant.info = payload
+      }
+    }))
+  details.open = true
+
+  fill(
+    $('#tab-info'),
+    el('p', { class: 'muted' },
+      'This is shown at the bottom of the guest menu. Leave a field empty to hide it. Links must start with https://.'),
+    details
+  )
 }
 
 // ---------- tables & QR links ----------
@@ -376,8 +413,8 @@ async function renderTables() {
   if (error) throw error
 
   const addForm = el('form', { class: 'inline-form' },
-    el('input', { type: 'text', maxlength: 20, placeholder: 'Название стола, например 5', 'aria-label': 'Название стола', required: true }),
-    el('button', { type: 'submit', class: 'primary' }, 'Добавить стол'))
+    el('input', { type: 'text', maxlength: 20, placeholder: 'Table name, for example 5', 'aria-label': 'Table name', required: true }),
+    el('button', { type: 'submit', class: 'primary' }, 'Add table'))
 
   addForm.addEventListener('submit', (event) => {
     event.preventDefault()
@@ -388,47 +425,47 @@ async function renderTables() {
       if (insertError) throw insertError
       if (!created?.length) throw new Error('forbidden')
       await renderTables()
-    }, 'Стол добавлен')
+    }, 'Table added')
   })
 
   fill(
     box,
     addForm,
     el('p', { class: 'muted' },
-      'У каждого стола своя ссылка. Сделайте из неё QR-код (любым генератором QR) и поставьте на стол. ' +
-      'Гости без такой ссылки смотрят меню, но заказать не могут. «Новый код» отзывает старый QR.'),
+      'Each table has its own link. Turn it into a QR code with any QR generator and put it on the table. ' +
+      'Guests without this link can view the menu but cannot order. “New code” invalidates the old QR.'),
     rows.length ? rows.map((row) => {
-      const link = el('input', { type: 'text', readonly: true, value: tableLink(row.token), 'aria-label': `Ссылка стола ${row.label}` })
+      const link = el('input', { type: 'text', readonly: true, value: tableLink(row.token), 'aria-label': `Link for table ${row.label}` })
       return el('div', { class: 'table-row' },
         el('strong', {}, row.label), link,
         el('button', {
           type: 'button', class: 'ghost',
           onclick: async () => {
-            try { await navigator.clipboard.writeText(link.value); notify('Ссылка скопирована') }
-            catch { link.select(); notify('Скопируйте ссылку вручную', true) }
+            try { await navigator.clipboard.writeText(link.value); notify('Link copied') }
+            catch { link.select(); notify('Copy the link manually', true) }
           }
-        }, 'Копировать'),
+        }, 'Copy'),
         el('button', {
           type: 'button', class: 'ghost',
           onclick: () => {
-            if (window.confirm('Старый QR перестанет работать. Продолжить?')) {
+            if (window.confirm('The old QR will stop working. Continue?')) {
               act(async () => {
                 const { error: rotateError } = await supabase.rpc('rotate_table_token', { p_table: row.id })
                 if (rotateError) throw rotateError
                 await renderTables()
-              }, 'Код обновлён')
+              }, 'Code updated')
             }
           }
-        }, 'Новый код'),
+        }, 'New code'),
         el('button', {
           type: 'button', class: 'danger',
           onclick: () => {
-            if (window.confirm(`Удалить стол ${row.label}?`)) {
-              act(async () => { await deleteRow('restaurant_tables', row.id); await renderTables() }, 'Стол удалён')
+            if (window.confirm(`Delete table ${row.label}?`)) {
+              act(async () => { await deleteRow('restaurant_tables', row.id); await renderTables() }, 'Table deleted')
             }
           }
-        }, 'Удалить'))
-    }) : el('p', { class: 'empty' }, 'Столов пока нет.'))
+        }, 'Delete'))
+    }) : el('p', { class: 'empty' }, 'No tables yet.'))
 }
 
 // ---------- staff ----------
@@ -439,8 +476,8 @@ async function renderStaff() {
   if (error) throw error
 
   const addForm = el('form', { class: 'inline-form' },
-    el('input', { type: 'email', placeholder: 'email сотрудника', 'aria-label': 'Email сотрудника', required: true }),
-    el('button', { type: 'submit', class: 'primary' }, 'Добавить'))
+    el('input', { type: 'email', placeholder: 'staff email', 'aria-label': 'Staff email', required: true }),
+    el('button', { type: 'submit', class: 'primary' }, 'Add'))
 
   addForm.addEventListener('submit', (event) => {
     event.preventDefault()
@@ -450,31 +487,31 @@ async function renderStaff() {
       })
       if (addError) throw addError
       await renderStaff()
-    }, 'Сотрудник добавлен')
+    }, 'Staff member added')
   })
 
   fill(
     box,
     el('p', { class: 'muted' },
-      'Сотрудник видит только окно заказов (staff.html). Аккаунт нужно создать заранее — это делает администратор платформы.'),
+      'Staff only see the order window (staff.html). Accounts are created in advance by the platform administrator.'),
     addForm,
     rows.map((row) => el('div', { class: 'list-row' },
-      el('span', {}, row.email), el('span', { class: 'badge' }, row.role === 'owner' ? 'владелец' : 'сотрудник'),
+      el('span', {}, row.email), el('span', { class: 'badge' }, row.role === 'owner' ? 'owner' : 'staff'),
       row.role === 'staff'
         ? el('button', {
           type: 'button', class: 'danger',
           onclick: () => {
-            if (window.confirm(`Убрать ${row.email}?`)) {
+            if (window.confirm(`Remove ${row.email}?`)) {
               act(async () => {
                 const { error: removeError } = await supabase.rpc('remove_staff', {
                   p_restaurant: restaurant.id, p_user: row.user_id
                 })
                 if (removeError) throw removeError
                 await renderStaff()
-              }, 'Доступ снят')
+              }, 'Access removed')
             }
           }
-        }, 'Убрать')
+        }, 'Remove')
         : el('span', {})))
   )
 }
@@ -488,23 +525,23 @@ async function renderLog() {
     .eq('restaurant_id', restaurant.id).order('created_at', { ascending: false }).limit(50)
   if (error) throw error
 
-  const ACTIONS = { INSERT: 'добавлено', UPDATE: 'изменено', DELETE: 'удалено' }
+  const ACTIONS = { INSERT: 'added', UPDATE: 'changed', DELETE: 'deleted' }
   const TABLES = {
-    categories: 'категория', subcategories: 'подкатегория', menu_items: 'блюдо', item_variants: 'вариант',
-    restaurant_tables: 'стол', restaurant_members: 'доступ'
+    categories: 'category', subcategories: 'subcategory', menu_items: 'dish', item_variants: 'variant',
+    restaurant_tables: 'table', restaurant_members: 'access'
   }
 
   fill(
     box,
-    el('p', { class: 'muted' }, 'Последние 50 изменений. Журнал нельзя редактировать.'),
+    el('p', { class: 'muted' }, 'The last 50 changes. The log cannot be edited.'),
     rows.length ? rows.map((row) => {
       const record = row.new_row ?? row.old_row ?? {}
       const title = label(record.name) !== '—' ? label(record.name) : (record.label ?? '')
       return el('div', { class: 'log-row' },
-        new Date(row.created_at).toLocaleString('ru'),
+        new Date(row.created_at).toLocaleString('en-GB'),
         `${TABLES[row.table_name] ?? row.table_name}`,
-        `${ACTIONS[row.action] ?? row.action} ${title} · ${row.user_id === user.id ? 'вы' : (row.user_id ? row.user_id.slice(0, 8) : 'платформа')}`)
-    }) : el('p', { class: 'empty' }, 'Изменений пока нет.'))
+        `${ACTIONS[row.action] ?? row.action} ${title} · ${row.user_id === user.id ? 'you' : (row.user_id ? row.user_id.slice(0, 8) : 'platform')}`)
+    }) : el('p', { class: 'empty' }, 'No changes yet.'))
 }
 
 // ---------- security ----------
@@ -512,21 +549,22 @@ async function renderLog() {
 function renderSecurity() {
   fill(
     $('#tab-security'),
-    el('p', {}, `Тариф: ${restaurant.plan === 'standard' ? 'Standard' : 'Free'} (меняется только администратором платформы).`),
+    el('p', {}, `Plan: ${restaurant.plan === 'standard' ? 'Standard' : 'Free'} (changed only by the platform administrator).`),
     el('p', {}, restaurant.require_mfa
-      ? 'Двухфакторная защита включена: изменения возможны только после входа с кодом из приложения.'
-      : 'Двухфакторная защита отключена администратором платформы.'),
+      ? 'Two-factor protection is on: changes are possible only after signing in with an app code.'
+      : 'Two-factor protection is turned off by the platform administrator.'),
     el('ul', { class: 'tips' },
-      el('li', {}, 'Меню, столы и сотрудников меняет только владелец; сотрудники видят только заказы.'),
-      el('li', {}, 'Каждое изменение записывается в журнал вместе с аккаунтом.'),
-      el('li', {}, 'Если подозреваете утечку пароля — смените пароль и нажмите «Новый код» у столов.'),
-      el('li', {}, 'Не давайте свой аккаунт сотрудникам: добавьте им отдельные аккаунты.')))
+      el('li', {}, 'Only the owner changes the menu, tables and staff. Staff see only orders.'),
+      el('li', {}, 'Every change is written to the log together with the account.'),
+      el('li', {}, 'If you suspect a password leak, change the password and press “New code” for each table.'),
+      el('li', {}, 'Do not share your account with staff: give each person their own account.')))
 }
 
 // ---------- tabs ----------
 
 const loaders = {
   menu: async () => { await loadMenu(); renderMenu() },
+  info: async () => renderInfo(),
   tables: renderTables,
   staff: renderStaff,
   log: renderLog,
@@ -560,7 +598,7 @@ function showLogin(message = '') {
 
 async function showPanel() {
   show('panel-view')
-  $('#panel-title').textContent = `Админ-панель · ${restaurant.slug}`
+  $('#panel-title').textContent = `Admin panel · ${restaurant.slug}`
   $('#panel-meta').textContent = `${user.email} · ${restaurant.plan === 'standard' ? 'Standard' : 'Free'}`
   await openTab('menu')
 }
@@ -572,12 +610,12 @@ async function startMfa(mode) {
   $('#mfa-enroll').hidden = mode !== 'enroll'
 
   if (mode === 'verify') {
-    $('#mfa-text').textContent = 'Введите код из приложения-аутентификатора.'
+    $('#mfa-text').textContent = 'Enter the code from your authenticator app.'
     return
   }
 
   $('#mfa-text').textContent =
-    'Для защиты меню нужна двухфакторная аутентификация. Отсканируйте QR-код приложением (Google Authenticator, Aegis, 1Password) и введите код.'
+    'Two-factor authentication is required to protect the menu. Scan the QR code with an authenticator app (Google Authenticator, Aegis, 1Password) and enter the code.'
 
   const { data: factors } = await supabase.auth.mfa.listFactors()
   for (const factor of factors?.all ?? []) {
@@ -586,7 +624,7 @@ async function startMfa(mode) {
 
   const { data: enrolled, error } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Admin panel' })
   if (error) {
-    $('#mfa-status').textContent = 'Не удалось начать настройку 2FA. Обновите страницу.'
+    $('#mfa-status').textContent = 'Could not start 2FA setup. Please refresh the page.'
     return
   }
 
@@ -602,15 +640,15 @@ async function afterAuth(sessionUser) {
   user = sessionUser
 
   const { data: found, error } = await supabase
-    .from('restaurants').select('id, slug, plan, require_mfa').eq('slug', slug).maybeSingle()
-  if (error || !found) return showLogin('Ресторан не найден.')
+    .from('restaurants').select('id, slug, plan, require_mfa, info').eq('slug', slug).maybeSingle()
+  if (error || !found) return showLogin('Restaurant not found.')
 
   const { data: membership } = await supabase
     .from('restaurant_members').select('role').eq('restaurant_id', found.id).eq('user_id', user.id).maybeSingle()
 
-  if (!membership) return showLogin('У этого аккаунта нет доступа к ресторану.')
+  if (!membership) return showLogin('This account has no access to this restaurant.')
   if (membership.role !== 'owner') {
-    return showLogin('Админ-панель доступна только владельцу. Сотрудникам — окно заказов (staff.html).')
+    return showLogin('The admin panel is for owners only. Staff use the order window (staff.html).')
   }
 
   restaurant = found
@@ -632,7 +670,7 @@ $('#login-form').addEventListener('submit', async (event) => {
   event.preventDefault()
   const submit = event.currentTarget.querySelector('button[type="submit"]')
   submit.disabled = true
-  $('#login-status').textContent = 'Выполняется вход…'
+  $('#login-status').textContent = 'Signing in…'
 
   try {
     const { data: session, error } = await supabase.auth.signInWithPassword({
@@ -644,7 +682,7 @@ $('#login-form').addEventListener('submit', async (event) => {
     await afterAuth(session.user)
   } catch (error) {
     console.error('Login failed:', error)
-    showLogin('Войти не удалось. Проверьте email и пароль.')
+    showLogin('Sign-in failed. Check your email and password.')
   } finally {
     submit.disabled = false
   }
@@ -667,7 +705,7 @@ $('#mfa-form').addEventListener('submit', async (event) => {
     await afterAuth(user)
   } catch (error) {
     console.error('2FA failed:', error)
-    $('#mfa-status').textContent = 'Код не подошёл. Проверьте время на телефоне и попробуйте ещё раз.'
+    $('#mfa-status').textContent = 'The code did not match. Check the time on your phone and try again.'
   } finally {
     submit.disabled = false
   }
@@ -677,7 +715,7 @@ async function logout() {
   await supabase.auth.signOut()
   user = null
   restaurant = null
-  showLogin('Вы вышли из аккаунта.')
+  showLogin('You have signed out.')
 }
 
 $('#logout').addEventListener('click', logout)

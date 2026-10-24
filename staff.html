@@ -1,21 +1,21 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Заказы</title>
+    <title>Orders</title>
   </head>
   <body>
     <section id="login-view" class="staff-login" hidden>
-      <h1>Окно персонала</h1>
-      <p class="muted">Войдите в аккаунт, которому предоставлен доступ к ресторану.</p>
+      <h1>Staff window</h1>
+      <p class="muted">Sign in with the account your restaurant gave you.</p>
       <form id="login-form">
         <label for="email">Email</label>
         <input id="email" type="email" autocomplete="username" required />
-        <label for="password">Пароль</label>
+        <label for="password">Password</label>
         <input id="password" type="password" autocomplete="current-password" required />
-        <button type="submit">Войти</button>
+        <button type="submit">Sign in</button>
       </form>
       <p id="login-status" class="status" role="status"></p>
     </section>
@@ -23,23 +23,23 @@
     <main id="board-view" hidden>
       <header class="board-header">
         <div>
-          <h1 id="board-title">Заказы</h1>
+          <h1 id="board-title">Orders</h1>
           <p id="board-status" class="status" role="status"></p>
         </div>
         <div class="board-actions">
-          <button id="sound-button" type="button" class="ghost" aria-pressed="false">Звук: выкл</button>
-          <button id="logout-button" type="button" class="ghost">Выйти</button>
+          <button id="sound-button" type="button" class="ghost" aria-pressed="false">Sound: off</button>
+          <button id="logout-button" type="button" class="ghost">Sign out</button>
         </div>
       </header>
 
       <p id="locked-message" class="locked" hidden>
-        Окно персонала доступно на тарифе Standard.
+        The staff window is available on the Standard plan.
       </p>
 
       <div id="columns" class="columns">
-        <section class="column" data-status="new"><h2>Новые</h2><div class="cards"></div></section>
-        <section class="column" data-status="preparing"><h2>Готовятся</h2><div class="cards"></div></section>
-        <section class="column" data-status="ready"><h2>Готовы к выдаче</h2><div class="cards"></div></section>
+        <section class="column" data-status="new"><h2>New</h2><div class="cards"></div></section>
+        <section class="column" data-status="preparing"><h2>Preparing</h2><div class="cards"></div></section>
+        <section class="column" data-status="ready"><h2>Ready to serve</h2><div class="cards"></div></section>
       </div>
     </main>
 

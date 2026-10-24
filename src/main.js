@@ -10,6 +10,9 @@ import { STATUS_STEPS, statusStep, isFinalStatus } from './utils/orderStatus.js'
 import { parseTableToken } from './utils/tableToken.js'
 import { newRequestId, isUuid } from './utils/requestId.js'
 import { placeOrder, getOrderStatus } from './services/orderService.js'
+import { safeHttpsUrl, telHref, mailtoHref, visibleInfo } from './utils/footer.js'
+import { footerText } from './utils/footerText.js'
+import { CREATOR } from './utils/creator.js'
 
 const restaurantSlug = new URLSearchParams(
   window.location.search
@@ -132,6 +135,53 @@ function formatPrice(price, currency) {
     currency,
     maximumFractionDigits: 0
   }).format(price)
+}
+
+function renderFooter() {
+  const info = visibleInfo(menuData.info)
+  const t = (key) => footerText(currentLanguage, key)
+  const about = info.about ? getLocalizedText(info.about) : ''
+
+  const rows = []
+  if (info.address) rows.push(['address', escapeHtml(info.address)])
+  if (info.hours) rows.push(['hours', escapeHtml(info.hours)])
+  if (info.phone) {
+    const href = telHref(info.phone)
+    rows.push(['phone', href ? `<a href="${escapeHtml(href)}">${escapeHtml(info.phone)}</a>` : escapeHtml(info.phone)])
+  }
+  if (info.email) {
+    const href = mailtoHref(info.email)
+    rows.push(['email', href ? `<a href="${escapeHtml(href)}">${escapeHtml(info.email)}</a>` : escapeHtml(info.email)])
+  }
+  if (info.website) {
+    const href = safeHttpsUrl(info.website)
+    rows.push(['website', href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(info.website)}</a>` : ''])
+  }
+
+  const hasInfo = Boolean(about) || rows.some(([, value]) => value)
+
+  return `
+    <footer class="app-footer">
+      ${hasInfo ? `
+        <div class="footer-block">
+          ${about ? `<h2 class="footer-title">${escapeHtml(t('about'))}</h2>
+            <p class="footer-about">${escapeHtml(about)}</p>` : ''}
+          ${rows.filter(([, value]) => value).length ? `<dl class="footer-facts">
+            ${rows.filter(([, value]) => value).map(([key, value]) => `
+              <div><dt>${escapeHtml(t(key))}</dt><dd>${value}</dd></div>
+            `).join('')}
+          </dl>` : ''}
+        </div>
+      ` : ''}
+      <div class="footer-bottom">
+        <span>${escapeHtml(t('platform'))}</span>
+        <span>${escapeHtml(t('creator'))}
+          <a href="${escapeHtml(CREATOR.portfolio)}" target="_blank" rel="noopener noreferrer">${escapeHtml(CREATOR.name)}</a>
+          · <a href="${escapeHtml(CREATOR.github)}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </span>
+      </div>
+    </footer>
+  `
 }
 
 function orderText(key) {
@@ -312,9 +362,7 @@ function renderMenu() {
 
       <div id="order-root"></div>
 
-      <footer class="app-footer">
-        Powered by Restaurant Platform
-      </footer>
+      ${renderFooter()}
     </main>
   `
 

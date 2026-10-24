@@ -30,7 +30,7 @@ export async function getMenu(slug) {
     const { data: restaurant, error: restaurantError } =
       await supabase
         .from('restaurants')
-        .select('id, plan')
+        .select('id, plan, info')
         .eq('slug', slug)
         .maybeSingle()
 
@@ -147,6 +147,7 @@ export async function getMenu(slug) {
 
     return {
       plan: restaurant.plan ?? 'free',
+      info: restaurant.info ?? {},
       restaurant: localMenu?.restaurant ?? {
         slug,
         id: slug,

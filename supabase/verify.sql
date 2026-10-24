@@ -3,7 +3,8 @@
 -- Run in the Supabase SQL Editor AFTER the migration, on a TEST project.
 -- Everything is rolled back at the end: no data is kept.
 --
--- Before running: Dashboard -> Authentication -> Users -> create two users
+-- Before running: Dashboard -> Authentication -> Users -> Add user (create two users,
+--   tick Auto Confirm):
 --   owner-test@example.com   and   staff-test@example.com
 -- and make sure the restaurant 'demo' has at least one published menu item
 -- WITHOUT variants. Expected result: every row in the final table is TRUE.
@@ -28,6 +29,17 @@ BEGIN
      AND NOT EXISTS (SELECT 1 FROM item_variants v WHERE v.item_id = mi.id) LIMIT 1;
   SELECT id INTO v_owner FROM auth.users WHERE email = 'owner-test@example.com';
   SELECT id INTO v_staff FROM auth.users WHERE email = 'staff-test@example.com';
+
+  -- Fail early with a clear message instead of inserting NULL user ids.
+  IF v_rest IS NULL THEN
+    RAISE EXCEPTION 'Restaurant with slug demo not found. Create it first.';
+  END IF;
+  IF v_menu IS NULL OR v_item IS NULL THEN
+    RAISE EXCEPTION 'Demo restaurant needs a published menu with one item without variants, price and is_available = true.';
+  END IF;
+  IF v_owner IS NULL OR v_staff IS NULL THEN
+    RAISE EXCEPTION 'Create users owner-test@example.com and staff-test@example.com first: Authentication -> Users -> Add user (set a password, tick Auto Confirm). Missing: owner=% staff=%', v_owner IS NULL, v_staff IS NULL;
+  END IF;
 
   INSERT INTO restaurant_members (restaurant_id, user_id, role)
   VALUES (v_rest, v_owner, 'owner'), (v_rest, v_staff, 'staff');
@@ -162,6 +174,70 @@ BEGIN
   EXCEPTION WHEN others THEN v_ok := SQLERRM LIKE '%plan_not_allowed%'; END;
   RESET ROLE;
   INSERT INTO results (name, ok) VALUES ('Free plan cannot order', v_ok);
+END $$;
+
+-- ---- restaurant info (migration 003) ----
+DO $$
+DECLARE
+  v_rest uuid; v_owner uuid; v_staff uuid; v_ok boolean; v_cnt int;
+BEGIN
+  SELECT id INTO v_rest  FROM restaurants WHERE slug = 'demo';
+  SELECT id INTO v_owner FROM auth.users WHERE email = 'owner-test@example.com';
+  SELECT id INTO v_staff FROM auth.users WHERE email = 'staff-test@example.com';
+
+  -- staff cannot change restaurant info
+  PERFORM set_config('request.jwt.claims',
+    json_build_object('sub', v_staff, 'role', 'authenticated', 'aal', 'aal1')::text, true);
+  SET LOCAL ROLE authenticated;
+  BEGIN PERFORM update_restaurant_info(v_rest, '{"address":"X"}'::jsonb); v_ok := false;
+  EXCEPTION WHEN others THEN v_ok := SQLERRM LIKE '%not_allowed%'; END;
+  RESET ROLE;
+  INSERT INTO results (name, ok) VALUES ('staff cannot change restaurant info', v_ok);
+
+  -- owner WITHOUT 2FA cannot change restaurant info
+  PERFORM set_config('request.jwt.claims',
+    json_build_object('sub', v_owner, 'role', 'authenticated', 'aal', 'aal1')::text, true);
+  SET LOCAL ROLE authenticated;
+  BEGIN PERFORM update_restaurant_info(v_rest, '{"address":"X"}'::jsonb); v_ok := false;
+  EXCEPTION WHEN others THEN v_ok := SQLERRM LIKE '%not_allowed%'; END;
+  RESET ROLE;
+  INSERT INTO results (name, ok) VALUES ('owner without 2FA cannot change restaurant info', v_ok);
+
+  -- owner WITH 2FA saves valid info
+  PERFORM set_config('request.jwt.claims',
+    json_build_object('sub', v_owner, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+  SET LOCAL ROLE authenticated;
+  PERFORM update_restaurant_info(v_rest,
+    '{"address":"Abovyan 1","website":"https://cafe.example","phone":"+374 10 123456","about":{"en":"A cafe"}}'::jsonb);
+  RESET ROLE;
+  SELECT (info ->> 'address') = 'Abovyan 1' AND (info ->> 'website') = 'https://cafe.example'
+    INTO v_ok FROM restaurants WHERE id = v_rest;
+  INSERT INTO results (name, ok) VALUES ('owner with 2FA saves restaurant info', v_ok);
+
+  -- unsafe values are rejected
+  SET LOCAL ROLE authenticated;
+  BEGIN PERFORM update_restaurant_info(v_rest, '{"website":"javascript:alert(1)"}'::jsonb); v_ok := false;
+  EXCEPTION WHEN others THEN v_ok := SQLERRM LIKE '%invalid_info%'; END;
+  RESET ROLE;
+  INSERT INTO results (name, ok) VALUES ('javascript: website is rejected', v_ok);
+
+  SET LOCAL ROLE authenticated;
+  BEGIN PERFORM update_restaurant_info(v_rest, '{"is_admin":"true"}'::jsonb); v_ok := false;
+  EXCEPTION WHEN others THEN v_ok := SQLERRM LIKE '%invalid_info%'; END;
+  RESET ROLE;
+  INSERT INTO results (name, ok) VALUES ('unknown field is rejected', v_ok);
+
+  -- guests cannot call the function, but can read the info
+  SET LOCAL ROLE anon;
+  BEGIN PERFORM update_restaurant_info(v_rest, '{"address":"X"}'::jsonb); v_ok := false;
+  EXCEPTION WHEN others THEN v_ok := SQLERRM LIKE '%permission denied%'; END;
+  RESET ROLE;
+  INSERT INTO results (name, ok) VALUES ('guest cannot call update_restaurant_info', v_ok);
+
+  SET LOCAL ROLE anon;
+  SELECT count(*) INTO v_cnt FROM restaurants WHERE slug = 'demo' AND info ->> 'address' = 'Abovyan 1';
+  RESET ROLE;
+  INSERT INTO results (name, ok) VALUES ('guest can read restaurant info', v_cnt = 1);
 END $$;
 
 SELECT n, name, ok FROM results ORDER BY n;

@@ -1,61 +1,63 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Админ-панель</title>
+    <title>Admin panel</title>
   </head>
   <body>
     <section id="login-view" class="card narrow" hidden>
-      <h1>Админ-панель</h1>
-      <p class="muted">Только для владельцев ресторана.</p>
+      <h1>Admin panel</h1>
+      <p class="muted">For restaurant owners only.</p>
       <form id="login-form">
         <label for="email">Email</label>
         <input id="email" type="email" autocomplete="username" required />
-        <label for="password">Пароль</label>
+        <label for="password">Password</label>
         <input id="password" type="password" autocomplete="current-password" required />
-        <button type="submit" class="primary">Войти</button>
+        <button type="submit" class="primary">Sign in</button>
       </form>
       <p id="login-status" class="status" role="status"></p>
     </section>
 
     <section id="mfa-view" class="card narrow" hidden>
-      <h1>Двухфакторная защита</h1>
+      <h1>Two-factor protection</h1>
       <p id="mfa-text" class="muted"></p>
       <div id="mfa-enroll" hidden>
-        <img id="mfa-qr" alt="QR-код для приложения-аутентификатора" width="200" height="200" />
-        <p class="muted">Или введите ключ вручную: <code id="mfa-secret"></code></p>
+        <img id="mfa-qr" alt="QR code for an authenticator app" width="200" height="200" />
+        <p class="muted">Or enter this key manually: <code id="mfa-secret"></code></p>
       </div>
       <form id="mfa-form">
-        <label for="mfa-code">Код из приложения</label>
+        <label for="mfa-code">Code from the app</label>
         <input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required />
-        <button type="submit" class="primary">Подтвердить</button>
+        <button type="submit" class="primary">Confirm</button>
       </form>
       <p id="mfa-status" class="status" role="status"></p>
-      <button id="mfa-logout" type="button" class="ghost">Выйти</button>
+      <button id="mfa-logout" type="button" class="ghost">Sign out</button>
     </section>
 
     <main id="panel-view" hidden>
       <header class="bar">
         <div>
-          <h1 id="panel-title">Админ-панель</h1>
+          <h1 id="panel-title">Admin panel</h1>
           <p id="panel-meta" class="muted"></p>
         </div>
-        <button id="logout" type="button" class="ghost">Выйти</button>
+        <button id="logout" type="button" class="ghost">Sign out</button>
       </header>
 
-      <nav class="tabs" aria-label="Разделы">
-        <button type="button" data-tab="menu" class="active">Меню</button>
-        <button type="button" data-tab="tables">Столы и QR</button>
-        <button type="button" data-tab="staff">Персонал</button>
-        <button type="button" data-tab="log">Журнал</button>
-        <button type="button" data-tab="security">Безопасность</button>
+      <nav class="tabs" aria-label="Sections">
+        <button type="button" data-tab="menu" class="active">Menu</button>
+        <button type="button" data-tab="info">Restaurant info</button>
+        <button type="button" data-tab="tables">Tables &amp; QR</button>
+        <button type="button" data-tab="staff">Staff</button>
+        <button type="button" data-tab="log">Change log</button>
+        <button type="button" data-tab="security">Security</button>
       </nav>
 
       <p id="notice" class="notice" role="status" hidden></p>
 
       <section id="tab-menu" class="tab"></section>
+      <section id="tab-info" class="tab" hidden></section>
       <section id="tab-tables" class="tab" hidden></section>
       <section id="tab-staff" class="tab" hidden></section>
       <section id="tab-log" class="tab" hidden></section>

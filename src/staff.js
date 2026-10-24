@@ -6,7 +6,7 @@ import { ACTIVE_STATUSES, nextStatus, canCancel } from './utils/orderStatus.js'
 const slug = new URLSearchParams(window.location.search).get('restaurant') || 'demo'
 const POLL_MS = 5000
 const STAFF_ROLES = ['owner', 'staff']
-const NEXT_LABEL = { new: 'Принять', preparing: 'Готово', ready: 'Выдано' }
+const NEXT_LABEL = { new: 'Accept', preparing: 'Ready', ready: 'Served' }
 
 const $ = (selector) => document.querySelector(selector)
 const loginView = $('#login-view')
@@ -36,7 +36,7 @@ function pickName(value) {
 
 function formatMoney(amount, currency) {
   try {
-    return new Intl.NumberFormat('ru', {
+    return new Intl.NumberFormat('en', {
       style: 'currency', currency, maximumFractionDigits: 0
     }).format(amount)
   } catch {
@@ -45,7 +45,7 @@ function formatMoney(amount, currency) {
 }
 
 function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 }
 
 function beep() {
@@ -81,7 +81,7 @@ function showBoard(locked) {
   boardView.hidden = false
   $('#locked-message').hidden = !locked
   $('#columns').hidden = locked
-  $('#board-title').textContent = `Заказы · ${restaurant.slug}`
+  $('#board-title').textContent = `Orders · ${restaurant.slug}`
 }
 
 async function checkAccess(user) {
@@ -89,7 +89,7 @@ async function checkAccess(user) {
     const { data: found, error } = await supabase
       .from('restaurants').select('id, slug, plan').eq('slug', slug).maybeSingle()
     if (error) throw error
-    if (!found) return showLogin('Ресторан не найден.')
+    if (!found) return showLogin('Restaurant not found.')
 
     const { data: membership, error: memberError } = await supabase
       .from('restaurant_members').select('role')
@@ -97,7 +97,7 @@ async function checkAccess(user) {
     if (memberError) throw memberError
 
     if (!membership || !STAFF_ROLES.includes(membership.role)) {
-      return showLogin('У вашего аккаунта нет доступа к этому ресторану.')
+      return showLogin('This account has no access to this restaurant.')
     }
 
     restaurant = found
@@ -111,7 +111,7 @@ async function checkAccess(user) {
     }
   } catch (error) {
     console.error('Access check failed:', error)
-    showLogin('Не удалось проверить доступ. Попробуйте ещё раз.')
+    showLogin('Could not check access. Please try again.')
   }
 }
 
@@ -140,11 +140,11 @@ async function loadOrders() {
     firstLoad = false
 
     const newCount = data.filter((order) => order.status === 'new').length
-    document.title = newCount > 0 ? `(${newCount}) Заказы` : 'Заказы'
-    boardStatus.textContent = `Обновлено ${formatTime(new Date().toISOString())}`
+    document.title = newCount > 0 ? `(${newCount}) Orders` : 'Orders'
+    boardStatus.textContent = `Updated ${formatTime(new Date().toISOString())}`
   } catch (error) {
     console.error('Loading orders failed:', error)
-    boardStatus.textContent = 'Нет связи. Пробуем снова…'
+    boardStatus.textContent = 'Connection lost. Retrying…'
   } finally {
     loading = false
   }
@@ -158,7 +158,7 @@ function renderBoard(orders, freshIds) {
     cards.replaceChildren()
 
     if (list.length === 0) {
-      cards.append(el('p', 'empty', 'Пусто'))
+      cards.append(el('p', 'empty', 'No orders'))
       return
     }
 
@@ -170,7 +170,7 @@ function orderCard(order, fresh) {
   const card = el('article', fresh ? 'card fresh' : 'card')
 
   const head = el('div', 'card-head')
-  head.append(el('strong', '', `№${order.order_number} · стол ${order.table_label}`))
+  head.append(el('strong', '', `#${order.order_number} · table ${order.table_label}`))
   head.append(el('span', 'muted', formatTime(order.created_at)))
   card.append(head)
 
@@ -190,10 +190,10 @@ function orderCard(order, fresh) {
   const target = nextStatus(order.status)
 
   if (canCancel(order.status)) {
-    const cancel = el('button', 'danger', 'Отмена')
+    const cancel = el('button', 'danger', 'Cancel')
     cancel.type = 'button'
     cancel.addEventListener('click', () => {
-      if (window.confirm(`Отменить заказ №${order.order_number}?`)) {
+      if (window.confirm(`Cancel order #${order.order_number}?`)) {
         changeStatus(order.id, 'cancelled', buttons)
       }
     })
@@ -220,7 +220,7 @@ async function changeStatus(orderId, status, buttons) {
     if (error) throw error
   } catch (error) {
     console.error('Status change failed:', error)
-    boardStatus.textContent = 'Не удалось изменить статус. Обновите страницу.'
+    boardStatus.textContent = 'Could not change the status. Please refresh the page.'
   }
 
   await loadOrders()
@@ -230,7 +230,7 @@ $('#login-form').addEventListener('submit', async (event) => {
   event.preventDefault()
   const submit = event.currentTarget.querySelector('button[type="submit"]')
   submit.disabled = true
-  loginStatus.textContent = 'Выполняется вход…'
+  loginStatus.textContent = 'Signing in…'
 
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -241,7 +241,7 @@ $('#login-form').addEventListener('submit', async (event) => {
     await checkAccess(data.user)
   } catch (error) {
     console.error('Login failed:', error)
-    showLogin('Войти не удалось. Проверьте email и пароль.')
+    showLogin('Sign-in failed. Check your email and password.')
   } finally {
     submit.disabled = false
   }
@@ -249,13 +249,13 @@ $('#login-form').addEventListener('submit', async (event) => {
 
 $('#logout-button').addEventListener('click', async () => {
   await supabase.auth.signOut()
-  showLogin('Вы вышли из аккаунта.')
+  showLogin('You have signed out.')
 })
 
 $('#sound-button').addEventListener('click', (event) => {
   soundOn = !soundOn
   if (soundOn) audioContext ??= new AudioContext() // needs a user gesture
-  event.currentTarget.textContent = soundOn ? 'Звук: вкл' : 'Звук: выкл'
+  event.currentTarget.textContent = soundOn ? 'Sound: on' : 'Sound: off'
   event.currentTarget.setAttribute('aria-pressed', String(soundOn))
   if (soundOn) beep()
 })
